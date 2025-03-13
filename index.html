@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI助手工具</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- 自定义样式 -->
+    <style>
+        .textarea-container {
+            position: relative;
+        }
+        .textarea-container textarea {
+            min-height: 200px;
+        }
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- 页面标题 -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">AI助手工具</h1>
+            <p class="text-gray-600 mt-2">快速调用资料整理和文案生成API</p>
+        </div>
+
+        <!-- 导航选项卡 -->
+        <div class="border-b border-gray-200 mb-6">
+            <nav class="flex -mb-px">
+                <button id="tab-material" class="text-blue-600 border-b-2 border-blue-600 py-4 px-6 font-medium">
+                    资料整理
+                </button>
+                <button id="tab-content" class="text-gray-500 py-4 px-6 font-medium">
+                    文案生成
+                </button>
+                <div class="flex-grow"></div>
+                <button id="config-btn" class="text-gray-500 py-4 px-6 font-medium flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    设置
+                </button>
+            </nav>
+        </div>
+
+        <!-- 资料整理面板 -->
+        <div id="panel-material" class="mb-8">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">资料整理</h2>
+                    
+                    <!-- 输入区域 -->
+                    <div class="mb-6">
+                        <label for="material-input" class="block text-sm font-medium text-gray-700 mb-2">输入关键词或主题</label>
+                        <textarea id="material-input" rows="4" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="请输入您需要查询的关键词或主题..."></textarea>
+                    </div>
+                    
+                    <!-- 搜索数量 -->
+                    <div class="mb-6">
+                        <label for="search-count" class="block text-sm font-medium text-gray-700 mb-2">搜索结果数量</label>
+                        <input type="number" id="search-count" value="3" min="1" max="10"
+                            class="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <!-- 提交按钮 -->
+                    <div class="mb-6">
+                        <button id="material-submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            开始整理
+                        </button>
+                    </div>
+                    
+                    <!-- 输出区域 -->
+                    <div class="textarea-container">
+                        <label for="material-output" class="block text-sm font-medium text-gray-700 mb-2 flex justify-between">
+                            <span>整理结果</span>
+                            <button id="material-copy" class="text-blue-600 hover:text-blue-800 text-sm flex items-center" type="button">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                复制
+                            </button>
+                        </label>
+                        <div id="material-status" class="status-badge px-2 py-1 text-xs font-medium text-white bg-blue-500 rounded hidden">正在处理...</div>
+                        <textarea id="material-output" readonly rows="12" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50"
+                            placeholder="整理结果将显示在这里..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文案生成面板 -->
+        <div id="panel-content" class="mb-8 hidden">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">文案生成</h2>
+                    
+                    <!-- 输入区域 -->
+                    <div class="mb-6">
+                        <label for="content-input" class="block text-sm font-medium text-gray-700 mb-2">输入文案需求</label>
+                        <textarea id="content-input" rows="6" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="请输入您的文案需求，如产品描述、目标受众等..."></textarea>
+                    </div>
+                    
+                    <!-- 提交按钮 -->
+                    <div class="mb-6">
+                        <button id="content-submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                            生成文案
+                        </button>
+                    </div>
+                    
+                    <!-- 输出区域 -->
+                    <div class="textarea-container">
+                        <label for="content-output" class="block text-sm font-medium text-gray-700 mb-2 flex justify-between">
+                            <span>生成结果</span>
+                            <button id="content-copy" class="text-blue-600 hover:text-blue-800 text-sm flex items-center" type="button">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                复制
+                            </button>
+                        </label>
+                        <div id="content-status" class="status-badge px-2 py-1 text-xs font-medium text-white bg-blue-500 rounded hidden">正在处理...</div>
+                        <textarea id="content-output" readonly rows="12" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50"
+                            placeholder="生成的文案将显示在这里..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 配置模态框 -->
+        <div id="config-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">API配置</h3>
+                    <button id="close-config" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- 基本配置 -->
+                <div class="mb-4">
+                    <label for="api-key" class="block text-sm font-medium text-gray-700 mb-2">API密钥 (Bearer Token)</label>
+                    <input type="password" id="api-key" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="输入您的API密钥...">
+                </div>
+                
+                <div class="mb-6">
+                    <label for="app-id" class="block text-sm font-medium text-gray-700 mb-2">App ID</label>
+                    <input type="text" id="app-id" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="输入您的App ID...">
+                </div>
+                
+                <!-- 资料整理配置 -->
+                <div class="mb-4 pt-4 border-t border-gray-200">
+                    <h4 class="text-md font-medium text-gray-800 mb-2">资料整理 Workflow</h4>
+                    <input type="text" id="material-workflow-id" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="输入资料整理的Workflow ID...">
+                    <p class="text-xs text-gray-500 mt-1">默认值: 7480496156771516442</p>
+                </div>
+                
+                <!-- 文案生成配置 -->
+                <div class="mb-6">
+                    <h4 class="text-md font-medium text-gray-800 mb-2">文案生成 Workflow</h4>
+                    <input type="text" id="content-workflow-id" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="输入文案生成的Workflow ID...">
+                    <p class="text-xs text-gray-500 mt-1">默认值: 7480496152606769191</p>
+                </div>
+                
+                <div class="flex justify-end">
+                    <button id="save-config" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        保存设置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="text-center text-gray-500 text-sm mt-12 pb-8">
+            <p>© 2023 AI助手工具. 保留所有权利.</p>
+        </footer>
+    </div>
+
+    <!-- 添加自定义JavaScript -->
+    <script src="app.js"></script>
+    <script>
+        // 配置模态框控制
+        document.getElementById('config-btn').addEventListener('click', () => {
+            document.getElementById('config-modal').classList.remove('hidden');
+        });
+        
+        document.getElementById('close-config').addEventListener('click', () => {
+            document.getElementById('config-modal').classList.add('hidden');
+        });
+    </script>
+</body>
+</html> 
