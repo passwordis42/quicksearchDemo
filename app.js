@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * 发送请求到资料整理API
      * @param {string} input - 用户输入的文本
-     * @param {number} search_Count - 搜索数量
+     * @param {number} count - 搜索数量
      * @returns {Promise<string>} API响应结果
      */
     async function callMaterialAPI(input, count) {
@@ -447,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!checkAPISettings()) return;
         
         const input = materialInput.value.trim();
-        const count = parseInt(search_Count.value);
+        const count = parseInt(searchCount.value);
         
         if (!input) {
             alert('请输入内容');
