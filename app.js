@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {number} search_Count - 搜索数量
      * @returns {Promise<string>} API响应结果
      */
-    async function callMaterialAPI(input, search_Count) {
+    async function callMaterialAPI(input, count) {
         try {
             // 显示加载指示器
             materialOutput.innerHTML = '<div class="flex justify-center items-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div><span class="ml-2">正在请求中...</span></div>';
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     "workflow_id": workflowId,
                     "parameters": {
                         "input": String(input),
-                        "search_Count": Number(search_Count)
+                        "search_Count": Number(count)
                     },
                     "app_id": getAppId()
                 })
