@@ -48,16 +48,19 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * 发送请求到资料整理API
      * @param {string} input - 用户输入的文本
-     * @param {number} count - 搜索数量
+     * @param {number} countGoogle - Google搜索数量
+     * @param {number} countBing - Bing搜索数量
+     * @param {string} dateGoogle - Google日期限制
+     * @param {string} dateBing - Bing日期范围
      * @returns {Promise<string>} API响应结果
      */
-    async function callMaterialAPI(input, count) {
+    async function callMaterialAPI(input, countGoogle, countBing, dateGoogle, dateBing) {
         try {
             // 显示加载指示器
             materialOutput.innerHTML = '<div class="flex justify-center items-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div><span class="ml-2">正在请求中...</span></div>';
             
             // 使用存储的WorkflowID或默认值
-            const workflowId = getWorkflowID() || "7480435490237726757";
+            const workflowId = getWorkflowID() || "7480496156771516442";
             
             const response = await fetch('https://api.coze.cn/v1/workflow/run', {
                 method: 'POST',
@@ -69,7 +72,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     "workflow_id": workflowId,
                     "parameters": {
                         "input": String(input),
-                        "search_Count": Number(count)
+                        "Search_CountGoogle": Number(countGoogle),
+                        "Search_CountBing": Number(countBing),
+                        "SearchDateGoogle": String(dateGoogle),
+                        "SearchDateBing": String(dateBing)
                     },
                     "app_id": getAppId()
                 })
@@ -447,21 +453,35 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!checkAPISettings()) return;
         
         const input = materialInput.value.trim();
-        const count = parseInt(searchCount.value);
+        const countGoogle = parseInt(document.getElementById('search-count-google').value);
+        const countBing = parseInt(document.getElementById('search-count-bing').value);
+        const dateGoogle = document.getElementById('search-date-google').value;
+        
+        // 处理Bing日期范围
+        let dateBing = document.getElementById('search-date-bing').value;
+        if (dateBing === 'custom') {
+            const startDate = document.getElementById('bing-date-start').value;
+            const endDate = document.getElementById('bing-date-end').value;
+            if (startDate && endDate) {
+                dateBing = `${startDate}..${endDate}`;
+            } else {
+                dateBing = '';
+            }
+        }
         
         if (!input) {
             alert('请输入内容');
             return;
         }
         
-        if (isNaN(count) || count < 1) {
+        if (isNaN(countGoogle) || countGoogle < 1 || isNaN(countBing) || countBing < 1) {
             alert('请输入有效的搜索数量');
             return;
         }
         
         materialOutput.textContent = '处理中...';
         try {
-            await callWithRetry(() => callMaterialAPI(input, count));
+            await callWithRetry(() => callMaterialAPI(input, countGoogle, countBing, dateGoogle, dateBing));
         } catch (error) {
             materialOutput.textContent = '请求失败，请稍后重试: ' + error.message;
             materialStatus.textContent = '请求失败';
@@ -512,6 +532,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (contentCopyBtn) {
         contentCopyBtn.addEventListener('click', () => {
             copyToClipboard(contentOutput.textContent, contentStatus);
+        });
+    }
+    
+    // 添加Bing日期范围选择器的交互
+    const searchDateBing = document.getElementById('search-date-bing');
+    const customDateRange = document.getElementById('custom-date-range');
+    
+    if (searchDateBing && customDateRange) {
+        searchDateBing.addEventListener('change', () => {
+            if (searchDateBing.value === 'custom') {
+                customDateRange.classList.remove('hidden');
+            } else {
+                customDateRange.classList.add('hidden');
+            }
         });
     }
     
